@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include=".pkgmeta" />
     <Content Include="Data\Config.lua">
       <SubType>Code</SubType>
     </Content>

@@ -171,7 +171,9 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
     ItemsList.cnt:SetHeight(300)
     ItemsList.scrollFrame:SetScrollChild(ItemsList.cnt)
     for k, itemid in ipairs(NS_MyWishList.Instances[instance_id]["items"]) do
-        local name, _, quality, iLevel, reqLevel, item_type, item_subType, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(itemid)
+        
+        local name, _, quality, iLevel, reqLevel, item_type, item_subType, maxStack, equipSlot, texture, vendorPrice,
+              itemClassID, itemSubClassID, bindType, expacID, itemSetID, isCraftingReagent = GetItemInfo(itemid)
         if name then
             local item_texture = GetItemIcon(itemid)
             local r, g, b, hex = GetItemQualityColor(quality)
@@ -225,49 +227,54 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                         ButtonAdd.icon:SetSize(28,28);
                         ButtonAdd.icon:SetTexture("Interface\\AddOns\\"..addonname.."\\Images\\add_green.blp");
                     ButtonAdd:SetPoint("TOPLEFT", labelItemName,"TOPRIGHT",5, 5)
-                    ButtonAdd:SetScript("OnClick", function(self, button)
-                        --print("click")
-                        local ad = NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]
-                        local cpt_r = 0
-                        local found1 = false
-                        local found_twice1 = false
-                        for k, v in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]) do
-                            cpt_r = cpt_r + 1
-                           -- print("click k:"..k)
-                           -- print("click v:"..v)
-                            if v == itemid then
-                                if found1 then 
-                                    found_twice1 = true
-                                end
-                                found1 = true
-                            end
-                        end
-                        if (not found1 or (found1 and button == "LeftButton" and IsShiftKeyDown())) and not found_twice1 then
-                            NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(cpt_r+1)] = itemid
-                        end
-                        if found and not found_twice then
-			                Button_.icon:SetVertexColor(0.5, 0, 0);
-                            ButtonAdd.icon:SetVertexColor(0.5, 0, 0);
-                            labelItemName:SetTextColor(0.8,0,0,1)
-		                end
-                        if found_twice then
-			                Button_.icon:SetVertexColor(0.5, 0.5, 0.5);
-                            ButtonAdd.icon:SetVertexColor(0.5, 0.5, 0.5);
-                            labelItemName:SetTextColor(0.5,0.5,0.5,1)
-		                end
-                        if not found then
-                            Button_.icon:SetVertexColor(1, 1, 1);
-                            ButtonAdd.icon:SetVertexColor(1, 1, 1);
-                            labelItemName:SetTextColor(r,g,b,1)
-                        end
-                        NS_MyWishList:fillMyWishList(instance_id)
-                    end)
+                    
                 local highlight = ButtonAdd:CreateTexture(nil, "HIGHLIGHT")
                     highlight:SetAllPoints(ButtonAdd)
                     highlight:SetTexture(136580) -- Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight
                     highlight:SetTexCoord(0, 1, 0.23, 0.77)
                     highlight:SetBlendMode("ADD")
 
+                ButtonAdd:SetScript("OnClick", function(self, button)
+                    --print("click")
+                    local ad = NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]
+                    local cpt_r = 0
+                    local found1 = false
+                    local found_twice1 = false
+                    for k, v in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]) do
+                        cpt_r = cpt_r + 1
+                        -- print("click k:"..k)
+                        -- print("click v:"..v)
+                        if v == itemid then
+                            if found1 then 
+                                found_twice1 = true
+                            end
+                            found1 = true
+                        end
+                    end
+                    if (not found1 or (found1 and button == "LeftButton" and IsShiftKeyDown())) and not found_twice1 then
+                        NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(cpt_r+1)] = itemid
+                    end
+                    if found and not found_twice then
+                        Button_.icon:SetVertexColor(0.5, 0.5, 0.5);
+                        ButtonAdd.icon:SetVertexColor(0.8, 0.8, 0.8);
+                        labelItemName:SetTextColor(0.5,0.5,0.5,1)
+                        highlight:SetVertexColor(0.5, 0, 0)
+                    end
+                    if found_twice then
+                        Button_.icon:SetVertexColor(0.5,   0, 0);
+                        ButtonAdd.icon:SetVertexColor(0,   0, 0);
+                        labelItemName:SetTextColor( 0.5,   0, 0  , 1)
+                        highlight:SetVertexColor(   0.5, 0.5, 0.5)
+                    end
+                    if not found then
+                        Button_.icon:SetVertexColor(1, 1, 1);
+                        ButtonAdd.icon:SetVertexColor(1, 1, 1);
+                        labelItemName:SetTextColor(r,g,b,1)
+                        highlight:SetVertexColor(1,1,1)
+                    end
+                    NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
+                    NS_MyWishList:fillMyWishList(instance_id)
+                end)
                 local found = false
                 local found_twice = false
                 for _, v in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]) do
@@ -279,24 +286,24 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                     end
                 end
                 --print(cpt_r)
-                if found and not found_twice then
-			        Button_.icon:SetVertexColor(0.5, 0, 0);
-                    ButtonAdd.icon:SetVertexColor(0.5, 0, 0);
-                    labelItemName:SetTextColor(0.8,0,0,1)
-                    highlight:SetTextColor(0.8,0,0,1)
-		        end
-                if found_twice then
-			        Button_.icon:SetVertexColor(0.5, 0.5, 0.5);
-                    ButtonAdd.icon:SetVertexColor(0.5, 0.5, 0.5);
-                    labelItemName:SetTextColor(0.5,0.5,0.5,1)
-                    highlight:SetTextColor(0.5,0.5,0.5,1)
-		        end
-                if not found then
-                    Button_.icon:SetVertexColor(1, 1, 1);
-                    ButtonAdd.icon:SetVertexColor(1, 1, 1);
-                    labelItemName:SetTextColor(r,g,b,1)
-                    highlight:SetTextColor(r,g,b,1)
-                end
+                    if found and not found_twice then
+                        Button_.icon:SetVertexColor(0.5, 0.5, 0.5);
+                        ButtonAdd.icon:SetVertexColor(0.8, 0.8, 0.8);
+                        labelItemName:SetTextColor(0.5,0.5,0.5,1)
+                        highlight:SetVertexColor(0.5, 0, 0)
+                    end
+                    if found_twice then
+                        Button_.icon:SetVertexColor(0.5,   0, 0);
+                        ButtonAdd.icon:SetVertexColor(0,   0, 0);
+                        labelItemName:SetTextColor( 0.5,   0, 0  , 1)
+                        highlight:SetVertexColor(   0.5, 0.5, 0.5)
+                    end
+                    if not found then
+                        Button_.icon:SetVertexColor(1, 1, 1);
+                        ButtonAdd.icon:SetVertexColor(1, 1, 1);
+                        labelItemName:SetTextColor(r,g,b,1)
+                        highlight:SetVertexColor(1,1,1)
+                    end
 
             frameButton.ButtonAdd = ButtonAdd
             ItemsButtons["ItemButton_"..instance_id.."_"..cpt_idx] = frameButton
@@ -325,6 +332,7 @@ end
 function NS_MyWishList:fillMyWishList(instance_id)
     --print("fillwl")
     local ItemsList = NS_MyWishList.currentWlTabMWL
+    local ItemsListBase = NS_MyWishList.currentWlTabIL
     if not ItemsList then 
         --print("fillwlerrrrrrrrrrrrrrr")
         return
@@ -434,6 +442,7 @@ function NS_MyWishList:fillMyWishList(instance_id)
                                 NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id][index_] = nil
                             end
 
+                            NS_MyWishList:fillInstanceItems(ItemsListBase,instance_id, wl_target)
                             NS_MyWishList:fillMyWishList(instance_id)
                         end)
                         local highlight = ButtonAdd:CreateTexture(nil, "HIGHLIGHT")

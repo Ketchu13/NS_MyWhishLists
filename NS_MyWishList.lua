@@ -39,16 +39,12 @@ NS_MyWishList.debug = true
 
 --EVENTS
 function NS_MyWishList:OnInitialize()
-        self:InitLoadData()
-    	self:RegisterChatCommand("NS_MyWishList", "ChatCommand")
-		-- Called when the addon is loaded
-
-		-- Print a message to the chat frame
-		self:Print("OnInitialize Event Fired: Hello")
+    self:InitLoadData()
+    self:RegisterChatCommand("NS_MWL", "ChatCommand")
 end
 function NS_MyWishList:InitLoadData()
     if not NS_MyWishList_Data_001 then
-    	NS_MyWishList_Data_001 = {}
+        NS_MyWishList_Data_001 = {}
     end
     if not NS_MyWishList_Data_001["Toons"] then
         NS_MyWishList_Data_001["Toons"] = {}
@@ -57,13 +53,10 @@ function NS_MyWishList:InitLoadData()
     if not NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name] then
         NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name] = {}
     end
-    self:SaveMyToon()
+    NS_MyWishList:getPlayerInfos()
 end
-function NS_MyWishList:SaveMyToon()
-    
-end
+
 function NS_MyWishList:OnEnable()
-   
     self:Config_OnInitialize()
     self:RegisterComm(NS_MyWishList.commPrefix, "OnCommReceive")
 --COMM=============================================================
@@ -92,7 +85,7 @@ function NS_MyWishList:OnEnable()
 
     --Display or not the splashscreen
     if NS_MyWishList_Data_001.displaySplash.hide then
-        NS_MyWishList:DrawSpashScr(UIPraent)
+        --NS_MyWishList:DrawSpashScr(UIPraent)
     end
     --Welcame message
     self:Print("NS_WL> Hello "..NS_MyWishList.player_name)
@@ -100,4 +93,5 @@ end
 
 function NS_MyWishList:OnDisable()
 		-- Called when the addon is disabled
+    self:Print("NS_WL> Bye "..NS_MyWishList.player_name)
 end

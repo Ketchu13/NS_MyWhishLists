@@ -980,3 +980,24 @@ NS_MyWishList.backdrop1 = {
     edgeFile = [[Interface\Tooltips\UI-Tooltip-Border]], edgeSize = 16,
     insets = { left = 4, right = 4, top = 4, bottom = 4 }
 }
+
+NS_MyWishList.ClassArmorType = {
+	["WARRIOR"] = {0, 1, 2, 3, 4, 5, 6},
+	["PALADIN"] = {0, 1, 2, 3, 4, 5, 6, 7, 11},
+	["HUNTER"]  = {0, 1, 2, 3, 5},
+	["ROGUE"]   = {0, 1, 2, 5},
+	["PRIES"]   = {0, 1, 5},
+	["MAGE"]    = {0, 1, 5},
+	["WARLOCK"] = {0, 1, 5},
+	["DRUID"]   = {0, 1, 2, 5, 8, 11},
+}
+NS_MyWishList.ClassWeaponType = {
+	["WARRIOR"] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 13, 14, 15, 16, 17, 18, 20},
+	["PALADIN"] = {0, 1, 4, 5, 6, 7, 8, 14, 17, 20},
+	["HUNTER"]  = {0, 1, 2, 3, 6, 7, 8, 10, 13, 14, 15, 17, 18, 20},
+	["ROGUE"]   = {0, 2, 3, 4, 7, 13, 14, 15, 18, 20},
+	["PRIES"]   = {4, 10, 14, 15, 19, 20},
+	["MAGE"]    = {7, 10, 14, 15, 19, 20},
+	["WARLOCK"] = {7, 10, 14, 15, 19, 20},
+	["DRUID"]   = {4, 5, 6, 10, 11, 12, 13, 14, 15, 20},
+}
