@@ -11,8 +11,6 @@ function NS_MyWishList:DrawItemsList(container, instance_id)
     local ItemsList = CreateFrame("Frame",addonname.."_ItemsList", container.content)
     ItemsList:SetSize(405,350);
     ItemsList:SetPoint("TOPLEFT",0,-17)
-
-
     ItemsList:SetToplevel(true);
 
     local c = NS_MyWishList.drk_lines
@@ -149,7 +147,6 @@ function NS_MyWishList:DrawMyWL(container, instance_id)
             NS_MyWishList:broadcast_MyWL(instance_id);
         end)
         closebutton:SetText("Envoyer")
-        
 
     ItemsList.closebutton = closebutton
     ItemsList.scrollFrame = scrollFrame
@@ -158,8 +155,6 @@ function NS_MyWishList:DrawMyWL(container, instance_id)
 end
 
 function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
-    --print("fillInst")
-
     if not ItemsList.cnt then print("error container is nil") end
     pair_ = false
     local ItemsButtons = {}
@@ -179,6 +174,7 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
         local name, _, quality, iLevel, reqLevel, item_type, item_subType, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(itemid)
         if name then
             local item_texture = GetItemIcon(itemid)
+            local r, g, b, hex = GetItemQualityColor(quality)
             if _G[addonname.."whishButton"..itemid] then
                 _G[addonname.."whishButton"..itemid]:Hide()
                 _G[addonname.."whishButton"..itemid] = nil
@@ -186,7 +182,6 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
             local frameButton = CreateFrame("Button",addonname.."whishButton"..itemid,ItemsList.cnt)
                 frameButton:SetPoint("TOPLEFT", ItemsList.cnt, "TOPLEFT", 5, 32-((32*cpt_idx-1)+2))
                 frameButton:SetPoint("RIGHT", ItemsList.cnt, "RIGHT", -5, 0)
-                --frameButton:SetWidth(30)
                 frameButton:SetHeight(30)
                 frameButton:EnableMouse(false)
                 frameButton:SetScript("OnEnter", function(self)
@@ -200,7 +195,7 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                 frameButton:SetScript("OnLeave", function(self)
                     GameTooltip:Hide()
                 end)
-                
+
                 local Button_ = CreateFrame("Button",nil,frameButton)
                     Button_:SetWidth(30)
                     Button_:SetHeight(30)
@@ -214,9 +209,9 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                 local labelItemName = frameButton:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
                     labelItemName:SetPoint("TOPLEFT", Button_,"TOPRIGHT",5, -5)
                     labelItemName:SetJustifyH("LEFT")
-                    labelItemName:SetJustifyV("MIDDLE")
-                    local r, g, b, hex = GetItemQualityColor(quality)
-                    labelItemName:SetText("|c"..hex..name.."|r")
+                    labelItemName:SetJustifyV("MIDDLE")                    
+                    labelItemName:SetText(name)
+                    labelItemName:SetTextColor(r,g,b,1)
                     labelItemName:SetHeight(20)
                     labelItemName:SetWidth(300)
 
@@ -234,25 +229,37 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                         --print("click")
                         local ad = NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]
                         local cpt_r = 0
-                        local found = false
-                        local found_twice = false
+                        local found1 = false
+                        local found_twice1 = false
                         for k, v in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]) do
                             cpt_r = cpt_r + 1
                            -- print("click k:"..k)
                            -- print("click v:"..v)
                             if v == itemid then
-                                if found then 
-                                    found_twice = true
+                                if found1 then 
+                                    found_twice1 = true
                                 end
-                                found = true
+                                found1 = true
                             end
                         end
-                        --print(cpt_r)
-                        if (not found or (found and button == "LeftButton" and IsShiftKeyDown())) and not found_twice then
-                            print("cpt_r")
+                        if (not found1 or (found1 and button == "LeftButton" and IsShiftKeyDown())) and not found_twice1 then
                             NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(cpt_r+1)] = itemid
                         end
-
+                        if found and not found_twice then
+			                Button_.icon:SetVertexColor(0.5, 0, 0);
+                            ButtonAdd.icon:SetVertexColor(0.5, 0, 0);
+                            labelItemName:SetTextColor(0.8,0,0,1)
+		                end
+                        if found_twice then
+			                Button_.icon:SetVertexColor(0.5, 0.5, 0.5);
+                            ButtonAdd.icon:SetVertexColor(0.5, 0.5, 0.5);
+                            labelItemName:SetTextColor(0.5,0.5,0.5,1)
+		                end
+                        if not found then
+                            Button_.icon:SetVertexColor(1, 1, 1);
+                            ButtonAdd.icon:SetVertexColor(1, 1, 1);
+                            labelItemName:SetTextColor(r,g,b,1)
+                        end
                         NS_MyWishList:fillMyWishList(instance_id)
                     end)
                 local highlight = ButtonAdd:CreateTexture(nil, "HIGHLIGHT")
@@ -260,6 +267,37 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                     highlight:SetTexture(136580) -- Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight
                     highlight:SetTexCoord(0, 1, 0.23, 0.77)
                     highlight:SetBlendMode("ADD")
+
+                local found = false
+                local found_twice = false
+                for _, v in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]) do
+                    if v == itemid then
+                        if found then 
+                            found_twice = true
+                        end
+                        found = true
+                    end
+                end
+                --print(cpt_r)
+                if found and not found_twice then
+			        Button_.icon:SetVertexColor(0.5, 0, 0);
+                    ButtonAdd.icon:SetVertexColor(0.5, 0, 0);
+                    labelItemName:SetTextColor(0.8,0,0,1)
+                    highlight:SetTextColor(0.8,0,0,1)
+		        end
+                if found_twice then
+			        Button_.icon:SetVertexColor(0.5, 0.5, 0.5);
+                    ButtonAdd.icon:SetVertexColor(0.5, 0.5, 0.5);
+                    labelItemName:SetTextColor(0.5,0.5,0.5,1)
+                    highlight:SetTextColor(0.5,0.5,0.5,1)
+		        end
+                if not found then
+                    Button_.icon:SetVertexColor(1, 1, 1);
+                    ButtonAdd.icon:SetVertexColor(1, 1, 1);
+                    labelItemName:SetTextColor(r,g,b,1)
+                    highlight:SetTextColor(r,g,b,1)
+                end
+
             frameButton.ButtonAdd = ButtonAdd
             ItemsButtons["ItemButton_"..instance_id.."_"..cpt_idx] = frameButton
             cpt_idx = cpt_idx + 1
@@ -282,11 +320,6 @@ function reSortWL(wl_table)
         end
     end
     wl_table = temp_wl_table
-    for k, itemid in pairs(wl_table) do
-        --print("k: "..k)
-        --print("itemid: "..itemid)
-        prio_count = prio_count + 1
-    end
     return wl_table
 end
 function NS_MyWishList:fillMyWishList(instance_id)
