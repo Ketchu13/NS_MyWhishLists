@@ -19,6 +19,7 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="Images\add_green.blp" />
+    <Content Include="Images\dsf.blp" />
     <Content Include="Images\L01.blp" />
     <Content Include="Images\L02.blp" />
     <Content Include="Images\L03.blp" />
