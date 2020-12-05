@@ -29,16 +29,18 @@ NS_MyWishList.MinimapBtn = LibStub("LibDataBroker-1.1"):NewDataObject(addonname,
 })
 
 function NS_MyWishList:Config_OnInitialize()
-    
     if NS_MyWishList_Data_001.displayError == nil then
         NS_MyWishList_Data_001.displayError = {
             ["hide"] = false,
         }
     end
-    if NS_MyWishList_Data_001.displaySplash == nil then
-        NS_MyWishList_Data_001.displaySplash = {
-            ["hide"] = false,
-        }
+    --if NS_MyWishList_Data_001.displaySplash == nil then
+    --    NS_MyWishList_Data_001.displaySplash = {
+    --        ["hide"] = false,
+    --    }
+    --end 
+    if NS_MyWishList_Data_001.displayOnly4Me == nil then
+        NS_MyWishList_Data_001.displayOnly4Me = true
     end
     if NS_MyWishList_Data_001.minimapPos == nil then
         NS_MyWishList_Data_001.minimapPos = {
@@ -85,11 +87,11 @@ NS_MyWishList.options = {
                 --NS_MyWishList_Data_001.db.profile[info[#(info)]] = value
             end,
             get = function(info)
-                return v--NS_MyWishList_Data_001.db.profile[info[#(info)]]
+                --return v--NS_MyWishList_Data_001.db.profile[info[#(info)]]
             end,
             args = {
                 hideMinimap = {
-                    order = 2,
+                    order = 1,
                     type = "toggle",
                     name = "Hide minimap button",
                     desc = "Hide the minimap button.",
@@ -110,7 +112,7 @@ NS_MyWishList.options = {
                     end,
                 },
                 displayError = {
-                    order = 6,
+                    order = 2,
                     type = "toggle",
                     name = "Display errors",
                     desc = "Display error from com data.",
@@ -122,17 +124,17 @@ NS_MyWishList.options = {
                         return NS_MyWishList_Data_001.displayError.hide
                     end,
                 },
-                displaySplash = {
-                    order = 7,
+                displayOnly4Me = {
+                    order = 3,
                     type = "toggle",
-                    name = "Display splashScreen",
-                    desc = "Display splashScreen on load.",
+                    name = "Display only wearable items",
+                    desc = "Display only items that you can equip or use.",
                     width = "full",
                     set = function(info, value)
-                        NS_MyWishList_Data_001.displaySplash.hide = not NS_MyWishList_Data_001.displaySplash.hide                                                
+                        NS_MyWishList_Data_001.displayOnly4Me = not NS_MyWishList_Data_001.displayOnly4Me
                     end,
                     get = function(info)
-                        return NS_MyWishList_Data_001.displaySplash.hide
+                        return NS_MyWishList_Data_001.displayOnly4Me
                     end,
                 },
             }

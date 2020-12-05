@@ -153,6 +153,27 @@ function NS_MyWishList:DrawMyWL(container, instance_id)
     ItemsList.scrollMotherFrame = scrollMotherFrame
     return ItemsList
 end
+local function IsUnique(itemid)
+    
+end
+local function IsEquipableItem(itemClassID,itemSubClassID, myClass)
+    if itemClassID == 4 then
+        for k,v in ipairs(NS_MyWishList.ClassArmorType[myClass]) do
+            if itemSubClassID == k then 
+                return true
+            end
+        end
+    elseif itemClassID == 2 then
+        for k,v in ipairs(NS_MyWishList.ClassWeaponType[myClass]) do
+            if itemSubClassID == k then 
+                return true
+            end
+        end
+    else
+        return true
+    end
+    return false
+end
 
 function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
     if not ItemsList.cnt then print("error container is nil") end
@@ -170,18 +191,22 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
     ItemsList.cnt:SetWidth(421)
     ItemsList.cnt:SetHeight(300)
     ItemsList.scrollFrame:SetScrollChild(ItemsList.cnt)
+    local _, englishClass, _ = UnitClass("player");    
     for k, itemid in ipairs(NS_MyWishList.Instances[instance_id]["items"]) do
-        
-        local name, _, quality, iLevel, reqLevel, item_type, item_subType, maxStack, equipSlot, texture, vendorPrice,
+        local name       , _, quality, iLevel, reqLevel, item_type, item_subType, maxStack, equipSlot, texture, vendorPrice,
               itemClassID, itemSubClassID, bindType, expacID, itemSetID, isCraftingReagent = GetItemInfo(itemid)
         if name then
-            local item_texture = GetItemIcon(itemid)
-            local r, g, b, hex = GetItemQualityColor(quality)
-            if _G[addonname.."whishButton"..itemid] then
-                _G[addonname.."whishButton"..itemid]:Hide()
-                _G[addonname.."whishButton"..itemid] = nil
-            end
-            local frameButton = CreateFrame("Button",addonname.."whishButton"..itemid,ItemsList.cnt)
+            if IsEquipableItem(itemClassID,itemSubClassID,englishClass) then -- and option.hideNotForMe == false then displayItem = 1 end
+            --if Not IsEquipableItem(itemid) and option.hideNotForMe == false then displayItem = 2 end
+            --if Not IsEquipableItem(itemid) and option.hideNotForMe == true then displayItem = 0 end
+            --if displayItem > 0 then
+                local item_texture = GetItemIcon(itemid)
+                local r, g, b, hex = GetItemQualityColor(quality)
+                if _G[addonname.."whishButton"..itemid] then
+                    _G[addonname.."whishButton"..itemid]:Hide()
+                    _G[addonname.."whishButton"..itemid] = nil
+                end
+                local frameButton = CreateFrame("Button",addonname.."whishButton"..itemid,ItemsList.cnt)
                 frameButton:SetPoint("TOPLEFT", ItemsList.cnt, "TOPLEFT", 5, 32-((32*cpt_idx-1)+2))
                 frameButton:SetPoint("RIGHT", ItemsList.cnt, "RIGHT", -5, 0)
                 frameButton:SetHeight(30)
@@ -209,13 +234,13 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
 
             --NAME
                 local labelItemName = frameButton:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
-                    labelItemName:SetPoint("TOPLEFT", Button_,"TOPRIGHT",5, -5)
-                    labelItemName:SetJustifyH("LEFT")
-                    labelItemName:SetJustifyV("MIDDLE")                    
-                    labelItemName:SetText(name)
-                    labelItemName:SetTextColor(r,g,b,1)
-                    labelItemName:SetHeight(20)
-                    labelItemName:SetWidth(300)
+                labelItemName:SetPoint("TOPLEFT", Button_,"TOPRIGHT",5, -5)
+                labelItemName:SetJustifyH("LEFT")
+                labelItemName:SetJustifyV("MIDDLE")
+                labelItemName:SetText(name)
+                labelItemName:SetTextColor(r,g,b,1)
+                labelItemName:SetHeight(20)
+                labelItemName:SetWidth(300)
 
                 local ButtonAdd = CreateFrame("Button",nil,frameButton)
                     ButtonAdd:SetWidth(30)
@@ -233,7 +258,7 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                     highlight:SetTexture(136580) -- Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight
                     highlight:SetTexCoord(0, 1, 0.23, 0.77)
                     highlight:SetBlendMode("ADD")
-
+                
                 ButtonAdd:SetScript("OnClick", function(self, button)
                     --print("click")
                     local ad = NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]
@@ -275,6 +300,7 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                     NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                     NS_MyWishList:fillMyWishList(instance_id)
                 end)
+
                 local found = false
                 local found_twice = false
                 for _, v in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]) do
@@ -285,29 +311,31 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                         found = true
                     end
                 end
-                --print(cpt_r)
-                    if found and not found_twice then
-                        Button_.icon:SetVertexColor(0.5, 0.5, 0.5);
-                        ButtonAdd.icon:SetVertexColor(0.8, 0.8, 0.8);
-                        labelItemName:SetTextColor(0.5,0.5,0.5,1)
-                        highlight:SetVertexColor(0.5, 0, 0)
-                    end
-                    if found_twice then
-                        Button_.icon:SetVertexColor(0.5,   0, 0);
-                        ButtonAdd.icon:SetVertexColor(0,   0, 0);
-                        labelItemName:SetTextColor( 0.5,   0, 0  , 1)
-                        highlight:SetVertexColor(   0.5, 0.5, 0.5)
-                    end
-                    if not found then
-                        Button_.icon:SetVertexColor(1, 1, 1);
-                        ButtonAdd.icon:SetVertexColor(1, 1, 1);
-                        labelItemName:SetTextColor(r,g,b,1)
-                        highlight:SetVertexColor(1,1,1)
-                    end
-
-            frameButton.ButtonAdd = ButtonAdd
-            ItemsButtons["ItemButton_"..instance_id.."_"..cpt_idx] = frameButton
-            cpt_idx = cpt_idx + 1
+                --if found and IsUnique(itemid) then found_twice == true end
+                if (found and not found_twice) and displayItem == 1 then
+                    Button_.icon:SetVertexColor(0.5, 0.5, 0.5);
+                    ButtonAdd.icon:SetVertexColor(0.8, 0.8, 0.8);
+                    labelItemName:SetTextColor(0.5,0.5,0.5,1)
+                    highlight:SetVertexColor(0.5, 0, 0)
+                end
+                if found_twice or displayItem == 2 then
+                    Button_.icon:SetVertexColor(0.5,   0, 0);
+                    ButtonAdd.icon:SetVertexColor(0,   0, 0);
+                    labelItemName:SetTextColor( 0.5,   0, 0  , 1)
+                    highlight:SetVertexColor(   0.5, 0.5, 0.5)
+                    ButtonAdd:Hide();
+                end
+                if not found and displayItem == 1 then
+                    Button_.icon:SetVertexColor(1, 1, 1);
+                    ButtonAdd.icon:SetVertexColor(1, 1, 1);
+                    labelItemName:SetTextColor(r,g,b,1)
+                    highlight:SetVertexColor(1,1,1)
+                    ButtonAdd:Show()
+                end
+                frameButton.ButtonAdd = ButtonAdd
+                ItemsButtons["ItemButton_"..instance_id.."_"..cpt_idx] = frameButton
+                cpt_idx = cpt_idx + 1
+            end
         end
     end
 end
