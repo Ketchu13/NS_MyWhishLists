@@ -174,6 +174,95 @@ local function IsEquipableItem(itemClassID,itemSubClassID, myClass)
     end
     return false
 end
+function GetItemSavedInfos(itemID)
+    local item;
+    local need_save = false;
+    local name ,
+          _,
+          quality,
+          iLevel,
+          reqLevel,
+          item_type,
+          item_subType,
+          maxStack,
+          equipSlot,
+          texture,
+          vendorPrice,
+          itemClassID,
+          itemSubClassID,
+          bindType,
+          expacID,
+          itemSetID,
+          isCraftingReagent
+    if not NS_MyWishList_Data_001["ItemsDB"] then
+        NS_MyWishList_Data_001["ItemsDB"] = {}
+    end
+    if not NS_MyWishList_Data_001["ItemsDB"][itemID] then
+        NS_MyWishList_Data_001["ItemsDB"][itemID] = {}
+        name ,
+        _,
+        quality,
+        iLevel,
+        reqLevel,
+        item_type,
+        item_subType,
+        maxStack,
+        equipSlot,
+        texture,
+        vendorPrice,
+        itemClassID,
+        itemSubClassID,
+        bindType,
+        expacID,
+        itemSetID,
+        isCraftingReagent = GetItemInfo(itemId);
+        need_save = true;
+    else
+        name =              NS_MyWishList_Data_001["ItemsDB"][itemID]["name"]             
+        quality=            NS_MyWishList_Data_001["ItemsDB"][itemID]["quality"]          
+        iLevel=             NS_MyWishList_Data_001["ItemsDB"][itemID]["iLevel"]           
+        reqLevel=           NS_MyWishList_Data_001["ItemsDB"][itemID]["reqLevel"]         
+        item_type=          NS_MyWishList_Data_001["ItemsDB"][itemID]["item_type"]        
+        item_subType=       NS_MyWishList_Data_001["ItemsDB"][itemID]["item_subType"]     
+        maxStack=           NS_MyWishList_Data_001["ItemsDB"][itemID]["maxStack"]         
+        equipSlot=          NS_MyWishList_Data_001["ItemsDB"][itemID]["equipSlot"]        
+        texture=            NS_MyWishList_Data_001["ItemsDB"][itemID]["texture"]          
+        vendorPrice=        NS_MyWishList_Data_001["ItemsDB"][itemID]["vendorPrice"]      
+        itemClassID=        NS_MyWishList_Data_001["ItemsDB"][itemID]["itemClassID"]      
+        itemSubClassID=     NS_MyWishList_Data_001["ItemsDB"][itemID]["itemSubClassID"]   
+        bindType=           NS_MyWishList_Data_001["ItemsDB"][itemID]["bindType"]         
+        expacID=            NS_MyWishList_Data_001["ItemsDB"][itemID]["expacID"]          
+        itemSetID=          NS_MyWishList_Data_001["ItemsDB"][itemID] ["itemSetID"]        
+        isCraftingReagent=  NS_MyWishList_Data_001["ItemsDB"][itemID]["isCraftingReagent"]
+    end
+    
+    item = {
+        ["name"]                = name,
+        ["itemID"]              = name,
+        ["quality"]             = quality,
+        ["iLevel"]              = iLevel,
+        ["reqLevel"]            = reqLevel,
+        ["item_type"]           = item_type,
+        ["item_subType"]        = item_subType,
+        ["maxStack"]            = maxStack,
+        ["equipSlot"]           = equipSlot,
+        ["texture"]             = texture,
+        ["vendorPrice"]         = vendorPrice,
+        ["itemClassID"]         = itemClassID,
+        ["itemSubClassID"]      = itemSubClassID,
+        ["bindType"]            = bindType,
+        ["expacID"]             = expacID,
+        ["itemSetID"]           = itemSetID,
+        ["isCraftingReagent"]   = isCraftingReagent
+    };
+    --save new item to db
+    if need_save then SaveItemInDB(item) end
+
+    return item
+end
+function SaveItemInDB(item)
+    NS_MyWishList_Data_001["ItemsDB"][item.itemID] = item
+end
 
 function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
     if not ItemsList.cnt then print("error container is nil") end
@@ -193,15 +282,14 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
     ItemsList.scrollFrame:SetScrollChild(ItemsList.cnt)
     local _, englishClass, _ = UnitClass("player");    
     for k, itemid in ipairs(NS_MyWishList.Instances[instance_id]["items"]) do
-        local name       , _, quality, iLevel, reqLevel, item_type, item_subType, maxStack, equipSlot, texture, vendorPrice,
-              itemClassID, itemSubClassID, bindType, expacID, itemSetID, isCraftingReagent = GetItemInfo(itemid)
-        if name then
-            if IsEquipableItem(itemClassID,itemSubClassID,englishClass) then -- and option.hideNotForMe == false then displayItem = 1 end
+        local curr_item = GetItemSavedInfos(itemId)
+        if curr_item.name then
+            if IsEquipableItem(curr_item.itemClassID,curr_item.itemSubClassID, englishClass) then -- and option.hideNotForMe == false then displayItem = 1 end
             --if Not IsEquipableItem(itemid) and option.hideNotForMe == false then displayItem = 2 end
             --if Not IsEquipableItem(itemid) and option.hideNotForMe == true then displayItem = 0 end
             --if displayItem > 0 then
                 local item_texture = GetItemIcon(itemid)
-                local r, g, b, hex = GetItemQualityColor(quality)
+                local r, g, b, hex = GetItemQualityColor(curr_item.quality)
                 if _G[addonname.."whishButton"..itemid] then
                     _G[addonname.."whishButton"..itemid]:Hide()
                     _G[addonname.."whishButton"..itemid] = nil
@@ -237,7 +325,7 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                 labelItemName:SetPoint("TOPLEFT", Button_,"TOPRIGHT",5, -5)
                 labelItemName:SetJustifyH("LEFT")
                 labelItemName:SetJustifyV("MIDDLE")
-                labelItemName:SetText(name)
+                labelItemName:SetText(curr_item.name)
                 labelItemName:SetTextColor(r,g,b,1)
                 labelItemName:SetHeight(20)
                 labelItemName:SetWidth(300)
@@ -261,8 +349,7 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                 
                 ButtonAdd:SetScript("OnClick", function(self, button)
                     --print("click")
-                    local ad = NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]
-                    local cpt_r = 0
+                     local cpt_r = 0
                     local found1 = false
                     local found_twice1 = false
                     for k, v in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]) do
