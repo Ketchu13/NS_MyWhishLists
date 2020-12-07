@@ -39,6 +39,9 @@ function NS_MyWishList:HideAll()
     if NS_MyWishList.frameTabStuff then
         NS_MyWishList.frameTabStuff:Hide()
     end
+    if NS_MyWishList.ExportMyWL then
+        NS_MyWishList.ExportMyWL:Hide()
+    end
 end
 --Tabs Menu
 function NS_MyWishList.SelectGroup(container, event, group)
@@ -61,15 +64,15 @@ function NS_MyWishList.SelectGroup(container, event, group)
     elseif group == "tab7" then
         target_id = 533
     elseif group == "tab8" then
+        NS_MyWishList.ExportMyWL = NS_MyWishList:DrawExportMyWLTabs(container)-- DrawTabBank5(container)
+    elseif group == "tab9" then
         NS_MyWishList.SourisGif = NS_MyWishList:DrawSourisGif(container)-- DrawTabBank5(container)
-    else
     end
     if target_id > 0 then 
         NS_MyWishList.currentWlTabIL = NS_MyWishList:DrawItemsList(container, target_id)
         NS_MyWishList:fillInstanceItems(NS_MyWishList.currentWlTabIL, target_id)
         NS_MyWishList.currentWlTabMWL = NS_MyWishList:DrawMyWL(container, target_id)
         NS_MyWishList:fillMyWishList(target_id)
-
     end
 end
 --SHOW
@@ -96,7 +99,8 @@ function NS_MyWishList:Show()
         { text = "Ahn Quiraj 20"        , value = "tab5" },
         { text = "Ahn Quiraj 40"      , value = "tab6" },
         { text = "Naxxramas"      , value = "tab7" },
-        { text = "Options"        , value = "tab8" }
+        { text = "Export"      , value = "tab8" },
+        { text = "Options"        , value = "tab9" }
     })
     -- Register callback
     tab:SetCallback("OnGroupSelected", NS_MyWishList.SelectGroup)

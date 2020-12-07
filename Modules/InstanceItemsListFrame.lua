@@ -8,6 +8,11 @@ local NS_MyWishList =_G.NS_MyWishList
 
 
 function NS_MyWishList:DrawItemsList(container, instance_id)
+    if not NS_MyWishList_Data_001["config"] then NS_MyWishList_Data_001["config"] = {} end
+    if not NS_MyWishList_Data_001["config"][instance_id] then NS_MyWishList_Data_001["config"][instance_id] = {} end
+    if NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"] == nil then
+        NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"] = true
+    end
     local ItemsList = CreateFrame("Frame",addonname.."_ItemsList", container.content)
     ItemsList:SetSize(405,350);
     ItemsList:SetPoint("TOPLEFT",0,-17)
@@ -58,27 +63,286 @@ function NS_MyWishList:DrawItemsList(container, instance_id)
     ItemsList.cnt:SetWidth(421)
     ItemsList.cnt:SetHeight(300)
 
-    --NAME
-    local labelTips1 = ItemsList:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
-        labelTips1:SetPoint("TOPLEFT", scrollMotherFrame,"BOTTOMLEFT",5, -5)
+    pair_ = false
+    --menu quality bouton===================================================================
+    local menuLootQuality = CreateFrame("Frame", nil, ItemsList)
+        menuLootQuality:SetSize(60, 26)
+        menuLootQuality:SetPoint("TOPLEFT",scrollMotherFrame,"BOTTOMLEFT", 0,-3)
+
+    local tleft = menuLootQuality:CreateTexture(nil, "BACKGROUND")
+        tleft:SetSize(25,64)
+        tleft:SetPoint("TOPLEFT", -18,18)
+        tleft:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+        tleft:SetTexCoord(0, 0.1953125, 0, 1)
+        
+    local tmid = menuLootQuality:CreateTexture(nil, "BACKGROUND")
+        tmid:SetSize(60,64)
+        tmid:SetPoint("LEFT", tleft, "RIGHT",0,0)
+        tmid:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+        tmid:SetTexCoord(0.1953125, 0.8046875, 0, 1)
+
+    local tright = menuLootQuality:CreateTexture(nil, "BACKGROUND")
+        tright:SetSize(25,64)
+        tright:SetPoint("LEFT", tmid, "RIGHT",0,0)
+        tright:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+        tright:SetTexCoord(0.8046875, 1, 0, 1)
+
+    ItemsList.menuLootQuality = menuLootQuality
+
+    local lootQualityDropmenu_str = ItemsList.menuLootQuality:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        lootQualityDropmenu_str:SetSize(100,10)
+        lootQualityDropmenu_str:SetPoint("LEFT",tleft,"RIGHT",-15, 2)
+
+    ItemsList.lootQualityDropmenu_str = lootQualityDropmenu_str
+
+    ItemsList.menuLootQuality.text = (function (self, value) ItemsList.lootQualityDropmenu_str:SetText(value) end)
+    local iv = NS_MyWishList_Data_001["config"][instance_id]["itemQuality"]
+    local r, g, b, hex = GetItemQualityColor(iv)
+    local color = "|c"..hex
+    local colorend = "|r"
+    ItemsList.menuLootQuality.text(self,(color.._G["ITEM_QUALITY"..iv.. "_DESC"]..colorend) or "Qualities:")
+    ItemsList.menuLootQuality:SetScript("OnMouseUp", function(self)
+        if ItemsList.lootQualityDropdown then
+            ItemsList.lootQualityDropdown:Close()
+        end
+        if ItemsList.lootSlotDropdown then
+            ItemsList.lootSlotDropdown:Close()
+        end
+        if ItemsList.lootTypeDropdown then
+            ItemsList.lootTypeDropdown:Close()
+        end
+        local lootQualityDropdown = NS_MyWishList.AceGUI:Create("Dropdown-Pullout")
+        lootQualityDropdown:SetWidth(110)
+        local header = NS_MyWishList.AceGUI:Create("Dropdown-Item-Header")
+        header:SetText("Qualities:")
+        lootQualityDropdown:AddItem(header)
+        lootQualityDropdown:AddItem(header)
+        --lootQualityDropdown = NS_MyWishList.AceGUI:Create("Dropdown-Pullout")
+        local itemsQuality = {}
+        for i= 0, 7 do
+            local r, g, b, hex = GetItemQualityColor(i)
+            local qualityName = _G["ITEM_QUALITY" .. i .. "_DESC"]
+            local colorend = "|r"
+            local color = "|c"..hex
+            local btn1 = NS_MyWishList.AceGUI:Create("Dropdown-Item-Execute")
+            btn1:SetText((color.._G["ITEM_QUALITY"..i.. "_DESC"]..colorend))
+            btn1:SetTextColor(r,g,b)
+            btn1:SetCallback("OnClick", function(self)
+                container:ReleaseChildren()
+                --self:SetText(color..qualityName..colorend)
+                if not NS_MyWishList_Data_001["config"] then NS_MyWishList_Data_001["config"] = {} end
+                if not NS_MyWishList_Data_001["config"][instance_id] then NS_MyWishList_Data_001["config"][instance_id] = {} end
+                NS_MyWishList_Data_001["config"][instance_id]["itemQuality"] = i
+                ItemsList.menuLootQuality.text(self, (color.._G["ITEM_QUALITY"..i.. "_DESC"]..colorend))
+                NS_MyWishList:fillInstanceItems(ItemsList,instance_id)
+                lootQualityDropdown:Close()
+            end)
+            lootQualityDropdown:AddItem(btn1)
+        end
+        local btn1 = NS_MyWishList.AceGUI:Create("Dropdown-Item-Execute")
+        btn1:SetText(CLOSE)
+        btn1:SetCallback("OnClick", function(self)
+            container:ReleaseChildren()
+            lootQualityDropdown:Close()
+        end)
+        lootQualityDropdown:AddItem(btn1)
+        lootQualityDropdown:Open("TOP", self, "BOTTOM", 0, 5)
+        lootQualityDropdown.frame:SetParent(self:GetParent())
+        self:GetParent().lootQualityDropdown = lootQualityDropdown
+    end)
+    --menu Type bouton=================================================================
+    local menuLootType = CreateFrame("Frame", nil, ItemsList)
+        menuLootType:SetSize(60, 26)
+        menuLootType:SetPoint("TOPLEFT",ItemsList.menuLootQuality,"TOPRIGHT", 40, 0)
+
+    local tleft = menuLootType:CreateTexture(nil, "BACKGROUND")
+        tleft:SetSize(25,64)
+        tleft:SetPoint("TOPLEFT", -18,18)
+        tleft:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+        tleft:SetTexCoord(0, 0.1953125, 0, 1)
+        
+    local tmid = menuLootType:CreateTexture(nil, "BACKGROUND")
+        tmid:SetSize(60,64)
+        tmid:SetPoint("LEFT", tleft, "RIGHT",0,0)
+        tmid:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+        tmid:SetTexCoord(0.1953125, 0.8046875, 0, 1)
+
+    local tright = menuLootType:CreateTexture(nil, "BACKGROUND")
+        tright:SetSize(25,64)
+        tright:SetPoint("LEFT", tmid, "RIGHT",0,0)
+        tright:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+        tright:SetTexCoord(0.8046875, 1, 0, 1)
+
+    ItemsList.menuLootType = menuLootType
+
+    local lootTypeDropmenu_str = ItemsList.menuLootType:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        lootTypeDropmenu_str:SetSize(100,10)
+        lootTypeDropmenu_str:SetPoint("LEFT",tleft,"RIGHT",-15, 2)
+
+    ItemsList.lootTypeDropmenu_str = lootTypeDropmenu_str
+    local TypeName1 = {[-1] = "Tous..", [2] = "Armes", [4] = "Armures"}
+    ItemsList.menuLootType.text = (function (self, value) ItemsList.lootTypeDropmenu_str:SetText(value) end)
+    text_ = "Types:"
+    for k,v in pairs(TypeName1) do
+        if k == NS_MyWishList_Data_001["config"][instance_id]["itemType"] then
+            text_ = v
+            break
+        end
+    end
+    ItemsList.menuLootType.text(self,text_)
+    ItemsList.menuLootType:SetScript("OnMouseUp", function(self)
+        if ItemsList.lootQualityDropdown then
+            ItemsList.lootQualityDropdown:Close()
+        end
+        if ItemsList.lootSlotDropdown then
+            ItemsList.lootSlotDropdown:Close()
+        end
+        if ItemsList.lootTypeDropdown then
+            ItemsList.lootTypeDropdown:Close()
+        end
+        local lootTypeDropdown = NS_MyWishList.AceGUI:Create("Dropdown-Pullout")
+        lootTypeDropdown:SetWidth(110)
+        local header = NS_MyWishList.AceGUI:Create("Dropdown-Item-Header")
+        header:SetText(NS_MyWishList_Data_001["config"][instance_id]["itemType"] or "Types:")
+        lootTypeDropdown:AddItem(header)
+        lootTypeDropdown = NS_MyWishList.AceGUI:Create("Dropdown-Pullout")
+        local itemsType = {}
+        for idx_type, type_ in pairs(TypeName1) do
+            local color = "|cFFAAAAAA"
+            local btn1 = NS_MyWishList.AceGUI:Create("Dropdown-Item-Execute")
+            btn1:SetText(color..type_..colorend)
+            btn1:SetCallback("OnClick", function(self)
+                container:ReleaseChildren()
+                self:SetText(color..type_..colorend)
+                if not NS_MyWishList_Data_001["config"] then NS_MyWishList_Data_001["config"] = {} end
+                if not NS_MyWishList_Data_001["config"][instance_id] then NS_MyWishList_Data_001["config"][instance_id] = {} end
+                NS_MyWishList_Data_001["config"][instance_id]["itemType"] = idx_type
+                ItemsList.menuLootType.text(self, color..type_..colorend)
+                NS_MyWishList:fillInstanceItems(ItemsList,instance_id)
+                lootTypeDropdown:Close()
+            end)
+            lootTypeDropdown:AddItem(btn1)
+        end
+        lootTypeDropdown:Open("TOP", self, "BOTTOM", 0, 5)
+        lootTypeDropdown.frame:SetParent(self:GetParent())
+        ItemsList.lootTypeDropdown = lootTypeDropdown
+    end)
+    ItemsList:SetScript("OnEnter", function(self)
+        if ItemsList.lootTypeDropdown then
+            ItemsList.lootTypeDropdown:Close()
+        end
+    end)
+    --menu slot bouton============================================================
+    local menuLootSlot = CreateFrame("Frame", nil, ItemsList)
+        menuLootSlot:SetSize(60, 26)
+        menuLootSlot:SetPoint("TOPLEFT",ItemsList.menuLootType,"TOPRIGHT", 40, 0)
+
+    local tleft = menuLootSlot:CreateTexture(nil, "BACKGROUND")
+        tleft:SetSize(25,64)
+        tleft:SetPoint("TOPLEFT", -18,18)
+        tleft:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+        tleft:SetTexCoord(0, 0.1953125, 0, 1)
+        
+    local tmid = menuLootSlot:CreateTexture(nil, "BACKGROUND")
+        tmid:SetSize(60,64)
+        tmid:SetPoint("LEFT", tleft, "RIGHT",0,0)
+        tmid:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+        tmid:SetTexCoord(0.1953125, 0.8046875, 0, 1)
+
+    local tright = menuLootSlot:CreateTexture(nil, "BACKGROUND")
+        tright:SetSize(25,64)
+        tright:SetPoint("LEFT", tmid, "RIGHT",0,0)
+        tright:SetTexture("Interface\\Glues\\CharacterCreate\\CharacterCreate-LabelFrame")
+        tright:SetTexCoord(0.8046875, 1, 0, 1)
+
+    ItemsList.menuLootSlot = menuLootSlot
+
+    local lootSlotDropmenu_str = ItemsList.menuLootSlot:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+        lootSlotDropmenu_str:SetSize(100,10)
+        lootSlotDropmenu_str:SetPoint("LEFT",tleft,"RIGHT",-15, 2)
+
+    ItemsList.lootSlotDropmenu_str = lootSlotDropmenu_str
+
+    ItemsList.menuLootSlot.text = (function (self, value) ItemsList.lootSlotDropmenu_str:SetText(value) end)
+    text_ = "Slots:"
+    for idx_slot, slot_text in pairs(NS_MyWishList.Slots) do
+        if idx_slot == NS_MyWishList_Data_001["config"][instance_id]["SlotSelected"] then
+            text_ = slot_text
+            break
+        end
+    end
+    ItemsList.menuLootSlot.text(self,text_)
+    ItemsList.menuLootSlot:SetScript("OnMouseUp", function(self)
+        if ItemsList.lootQualityDropdown then
+            ItemsList.lootQualityDropdown:Close()
+        end
+        if ItemsList.lootSlotDropdown then
+            ItemsList.lootSlotDropdown:Close()
+        end
+        if ItemsList.lootTypeDropdown then
+            ItemsList.lootTypeDropdown:Close()
+        end
+        local lootSlotDropdown = NS_MyWishList.AceGUI:Create("Dropdown-Pullout")
+        lootSlotDropdown:SetWidth(110)
+        local header = NS_MyWishList.AceGUI:Create("Dropdown-Item-Header")
+        header:SetText(NS_MyWishList_Data_001["config"][instance_id]["SlotSelected"] or "Slots:")
+        lootSlotDropdown:AddItem(header)
+        lootSlotDropdown = NS_MyWishList.AceGUI:Create("Dropdown-Pullout")
+        local itemsSlot = {}
+        for idx_slot, slot_text in pairs(NS_MyWishList.Slots) do
+            local btn1 = NS_MyWishList.AceGUI:Create("Dropdown-Item-Execute")
+            btn1:SetText(slot_text)
+            btn1:SetCallback("OnClick", function(self)     
+                container:ReleaseChildren()
+                self:SetText(slot_text)
+                if not NS_MyWishList_Data_001["config"] then NS_MyWishList_Data_001["config"] = {} end
+                if not NS_MyWishList_Data_001["config"][instance_id] then NS_MyWishList_Data_001["config"][instance_id] = {} end
+                NS_MyWishList_Data_001["config"][instance_id]["SlotSelected"] = idx_slot
+                ItemsList.menuLootSlot.text(self, slot_text)
+                lootSlotDropdown:Close()
+                NS_MyWishList:fillInstanceItems(ItemsList,instance_id)
+            end)
+            lootSlotDropdown:AddItem(btn1)
+        end
+        lootSlotDropdown:Open("TOP", self, "BOTTOM", 0, 5)
+        lootSlotDropdown.frame:SetParent(self:GetParent())
+        self:GetParent().lootSlotDropdown = lootSlotDropdown
+    end)
+    --menu ou bouton============================================================
+    local onlyUsable = CreateFrame("CheckButton", nil, ItemsList, "UICheckButtonTemplate");
+        onlyUsable:SetPoint("TOPLEFT",ItemsList.menuLootSlot,"TOPRIGHT", 40, 2);
+        onlyUsable.text:SetWidth(160);
+        onlyUsable.text:SetText(" Equipable");
+        onlyUsable.text:SetJustifyH("LEFT")
+        onlyUsable.text:Show();
+        onlyUsable:SetChecked(NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"])
+        onlyUsable:SetScript("OnMouseUp", function(self)
+            self:SetChecked(self:GetChecked());
+            --NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"])
+            NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"] = not NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"]
+            NS_MyWishList:fillInstanceItems(ItemsList,instance_id)
+        end)
+    ItemsList.onlyUsable = onlyUsable
+    -- ============================================================
+    --TIPS
+    local labelTips1 = ItemsList:CreateFontString(nil, "BACKGROUND", "GameFontNormalSmall")
+        labelTips1:SetPoint("TOPLEFT", ItemsList.menuLootQuality,"BOTTOMLEFT",5, -2)
         labelTips1:SetJustifyH("LEFT")
         labelTips1:SetJustifyV("MIDDLE")
-        labelTips1:SetText("Click Gauche pour ajouter l'item dans votre Wish liste")
+        labelTips1:SetText("Click Gauche pour ajouter l'item dans votre Wish liste.")
         labelTips1:SetHeight(20)
         labelTips1:SetWidth(400)
-    local labelTips2 = ItemsList:CreateFontString(nil, "BACKGROUND", "GameFontNormal")
-        labelTips2:SetPoint("TOPLEFT", labelTips1,"BOTTOMLEFT",0, -5)
+    local labelTips2 = ItemsList:CreateFontString(nil, "BACKGROUND", "GameFontNormalSmall")
+        labelTips2:SetPoint("TOPLEFT", labelTips1,"BOTTOMLEFT",0, 8)
         labelTips2:SetJustifyH("LEFT")
         labelTips2:SetJustifyV("MIDDLE")
-        labelTips2:SetText("Shift + Click Gauche pour cloner l'item dans votre WL |cFF555555(Unité X 2 max)|r")
+        labelTips2:SetText("Shift + Click Gauche pour cloner l'item dans votre WL. |cFF555555(Unité X 2 max)|r")
         labelTips2:SetHeight(20)
         labelTips2:SetWidth(450)
     scrollFrame:SetScrollChild(ItemsList.cnt)
 
     ItemsList.scrollFrame = scrollFrame
     ItemsList.scrollMotherFrame = scrollMotherFrame
-
-    pair_ = false
 
     return ItemsList
 end
@@ -157,6 +421,7 @@ local function IsUnique(itemid)
     
 end
 local function IsEquipableItem(itemClassID,itemSubClassID, myClass)
+    --print(myClass)
     if itemClassID == 4 then
         for k,v in ipairs(NS_MyWishList.ClassArmorType[myClass]) do
             if itemSubClassID == k then 
@@ -197,7 +462,7 @@ function GetItemSavedInfos(itemID)
     if not NS_MyWishList_Data_001["ItemsDB"] then
         NS_MyWishList_Data_001["ItemsDB"] = {}
     end
-    if not NS_MyWishList_Data_001["ItemsDB"][itemID] then
+    if not NS_MyWishList_Data_001["ItemsDB"][itemID] or not NS_MyWishList_Data_001["ItemsDB"][itemID]["name"] then
         NS_MyWishList_Data_001["ItemsDB"][itemID] = {}
         name ,
         _,
@@ -215,8 +480,10 @@ function GetItemSavedInfos(itemID)
         bindType,
         expacID,
         itemSetID,
-        isCraftingReagent = GetItemInfo(itemId);
-        need_save = true;
+        isCraftingReagent = GetItemInfo(itemID);
+        if name and quality then
+            need_save = true;
+        end
     else
         name =              NS_MyWishList_Data_001["ItemsDB"][itemID]["name"]             
         quality=            NS_MyWishList_Data_001["ItemsDB"][itemID]["quality"]          
@@ -238,7 +505,7 @@ function GetItemSavedInfos(itemID)
     
     item = {
         ["name"]                = name,
-        ["itemID"]              = name,
+        ["itemID"]              = itemID,
         ["quality"]             = quality,
         ["iLevel"]              = iLevel,
         ["reqLevel"]            = reqLevel,
@@ -255,6 +522,7 @@ function GetItemSavedInfos(itemID)
         ["itemSetID"]           = itemSetID,
         ["isCraftingReagent"]   = isCraftingReagent
     };
+    --need_save = true
     --save new item to db
     if need_save then SaveItemInDB(item) end
 
@@ -262,6 +530,120 @@ function GetItemSavedInfos(itemID)
 end
 function SaveItemInDB(item)
     NS_MyWishList_Data_001["ItemsDB"][item.itemID] = item
+end
+
+
+function IsOverQuality(instance_id, quality)
+    local q = NS_MyWishList_Data_001["config"][instance_id]["itemQuality"]
+    if quality >= q or q == nil or q==0 then 
+        return true
+    end
+    return false
+end
+
+local itemSlotTable = {
+  -- Source: http://wowwiki.wikia.com/wiki/ItemEquipLoc
+  ["INVTYPE_AMMO"] =           { 0 },
+  ["INVTYPE_HEAD"] =           { 1 },
+  ["INVTYPE_NECK"] =           { 2 },
+  ["INVTYPE_SHOULDER"] =       { 3 },
+  ["INVTYPE_BODY"] =           { 4 },
+  ["INVTYPE_CHEST"] =          { 5 },
+  ["INVTYPE_ROBE"] =           { 5 },
+  ["INVTYPE_WAIST"] =          { 6 },
+  ["INVTYPE_LEGS"] =           { 7 },
+  ["INVTYPE_FEET"] =           { 8 },
+  ["INVTYPE_WRIST"] =          { 9 },
+  ["INVTYPE_HAND"] =           { 10 },
+  ["INVTYPE_FINGER"] =         { 11, 12 },
+  ["INVTYPE_TRINKET"] =        { 13, 14 },
+  ["INVTYPE_CLOAK"] =          { 15 },
+  ["INVTYPE_WEAPON"] =         { 16, 17 },
+  ["INVTYPE_SHIELD"] =         { 17 },
+  ["INVTYPE_2HWEAPON"] =       { 16 },
+  ["INVTYPE_WEAPONMAINHAND"] = { 16 },
+  ["INVTYPE_WEAPONOFFHAND"] =  { 17 },
+  ["INVTYPE_HOLDABLE"] =       { 17 },
+  ["INVTYPE_RANGED"] =         { 18 },
+  ["INVTYPE_THROWN"] =         { 18 },
+  ["INVTYPE_RANGEDRIGHT"] =    { 18 },
+  ["INVTYPE_RELIC"] =          { 18 },
+  ["INVTYPE_TABARD"] =         { 19 },
+  ["INVTYPE_BAG"] =            { 20, 21, 22, 23 },
+  ["INVTYPE_QUIVER"] =         { 20, 21, 22, 23 }
+};
+
+local function usableSlotID ( itemEquipLoc )
+  return itemSlotTable[itemEquipLoc] or nil
+end
+
+function IsTargetSlot(instance_id, equipSlot)
+    local eq = NS_MyWishList_Data_001["config"][instance_id]["SlotSelected"]
+
+    local equipslotnum = usableSlotID(equipSlot)
+    if equipslotnum then
+        for k, equipSlot_id in ipairs(equipslotnum) do
+            if equipSlot_id == eq or eq == nil or eq ==-1 then 
+                return true
+            end
+        end
+    else
+        --print(equipSlot)
+    end
+    return false
+end
+function IsTargetType(instance_id, itemType)
+    local it = NS_MyWishList_Data_001["config"][instance_id]["itemType"]
+    if itemType == it or it == nil or it ==-1 then 
+        return true
+    end
+    return false
+end
+function mustBeDisplayed(instance_id, item, my_class)
+    if not NS_MyWishList_Data_001["config"] then
+        NS_MyWishList_Data_001["config"] = {}
+    end
+    if not NS_MyWishList_Data_001["config"][instance_id] then
+        NS_MyWishList_Data_001["config"][instance_id] = {}
+    end
+    if not NS_MyWishList_Data_001["config"][instance_id]["itemQuality"] then
+        NS_MyWishList_Data_001["config"][instance_id]["itemQuality"] = 0
+    end
+    if not NS_MyWishList_Data_001["config"][instance_id]["SlotSelected"] then
+        NS_MyWishList_Data_001["config"][instance_id]["SlotSelected"] = -1
+    end
+    if not NS_MyWishList_Data_001["config"][instance_id]["itemType"] then
+        NS_MyWishList_Data_001["config"][instance_id]["itemType"] = -1
+    end
+     if NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"] == nil then
+        NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"] = true
+     end
+    local goodQuality   = IsOverQuality(    instance_id,      item.quality)
+    local goodSlot      = IsTargetSlot(     instance_id,      item.equipSlot)
+    local goodType      = IsTargetType(     instance_id,      item.itemClassID)
+    local equipable     = IsEquipableItem(  item.itemClassID, item.itemSubClassID, my_class)
+    local displayEquip = false
+    local displayItem = 0
+    --no equip and dont want to see noeq
+    if equipable == false and NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"] == true then
+        displayItem = 0
+    end
+    --not equip and dont care to see noeq
+    if equipable == false and NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"] == false then
+       displayItem = 2
+       displayEquip = true
+    end
+    --equip and dont want to see noeq
+    if equipable == true and NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"] == true then
+        displayItem = 1
+        displayEquip = true
+    end
+    if equipable == true and NS_MyWishList_Data_001["config"][instance_id]["UsableOnly"] == false then
+       displayItem = 1
+       displayEquip = true
+    end
+
+    return (goodQuality and goodSlot and goodType and displayEquip), displayItem
 end
 
 function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
@@ -282,12 +664,10 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
     ItemsList.scrollFrame:SetScrollChild(ItemsList.cnt)
     local _, englishClass, _ = UnitClass("player");    
     for k, itemid in ipairs(NS_MyWishList.Instances[instance_id]["items"]) do
-        local curr_item = GetItemSavedInfos(itemId)
+        local curr_item = GetItemSavedInfos(itemid)
         if curr_item.name then
-            if IsEquipableItem(curr_item.itemClassID,curr_item.itemSubClassID, englishClass) then -- and option.hideNotForMe == false then displayItem = 1 end
-            --if Not IsEquipableItem(itemid) and option.hideNotForMe == false then displayItem = 2 end
-            --if Not IsEquipableItem(itemid) and option.hideNotForMe == true then displayItem = 0 end
-            --if displayItem > 0 then
+            local toDisplay, displayItem = mustBeDisplayed(instance_id, curr_item, englishClass)
+            if toDisplay then 
                 local item_texture = GetItemIcon(itemid)
                 local r, g, b, hex = GetItemQualityColor(curr_item.quality)
                 if _G[addonname.."whishButton"..itemid] then
@@ -348,14 +728,11 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                     highlight:SetBlendMode("ADD")
                 
                 ButtonAdd:SetScript("OnClick", function(self, button)
-                    --print("click")
-                     local cpt_r = 0
+                        local cpt_r = 0
                     local found1 = false
                     local found_twice1 = false
                     for k, v in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]) do
                         cpt_r = cpt_r + 1
-                        -- print("click k:"..k)
-                        -- print("click v:"..v)
                         if v == itemid then
                             if found1 then 
                                 found_twice1 = true
@@ -365,24 +742,6 @@ function NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                     end
                     if (not found1 or (found1 and button == "LeftButton" and IsShiftKeyDown())) and not found_twice1 then
                         NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(cpt_r+1)] = itemid
-                    end
-                    if found and not found_twice then
-                        Button_.icon:SetVertexColor(0.5, 0.5, 0.5);
-                        ButtonAdd.icon:SetVertexColor(0.8, 0.8, 0.8);
-                        labelItemName:SetTextColor(0.5,0.5,0.5,1)
-                        highlight:SetVertexColor(0.5, 0, 0)
-                    end
-                    if found_twice then
-                        Button_.icon:SetVertexColor(0.5,   0, 0);
-                        ButtonAdd.icon:SetVertexColor(0,   0, 0);
-                        labelItemName:SetTextColor( 0.5,   0, 0  , 1)
-                        highlight:SetVertexColor(   0.5, 0.5, 0.5)
-                    end
-                    if not found then
-                        Button_.icon:SetVertexColor(1, 1, 1);
-                        ButtonAdd.icon:SetVertexColor(1, 1, 1);
-                        labelItemName:SetTextColor(r,g,b,1)
-                        highlight:SetVertexColor(1,1,1)
                     end
                     NS_MyWishList:fillInstanceItems(ItemsList,instance_id, wl_target)
                     NS_MyWishList:fillMyWishList(instance_id)
@@ -445,11 +804,9 @@ function reSortWL(wl_table)
     return wl_table
 end
 function NS_MyWishList:fillMyWishList(instance_id)
-    --print("fillwl")
     local ItemsList = NS_MyWishList.currentWlTabMWL
     local ItemsListBase = NS_MyWishList.currentWlTabIL
     if not ItemsList then 
-        --print("fillwlerrrrrrrrrrrrrrr")
         return
     end
     local obj_name = addonname.."_Instance_"..instance_id.."_MyList_cnt"
@@ -478,20 +835,15 @@ function NS_MyWishList:fillMyWishList(instance_id)
     for k, itemid in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]) do
         prio_count = prio_count + 1
     end
-    --print("prio_count:"..prio_count)
     for index = 1,prio_count do
         local itemid = NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(index)]
-        --print(itemid)
         if itemid then
             local name, _, quality, iLevel, reqLevel, item_type, item_subType, maxStack, equipSlot, texture, vendorPrice = GetItemInfo(itemid)
             if name then
-                --print(cpt_idx)
-                
                 local item_texture = GetItemIcon(itemid)
                 local frameButton = CreateFrame("Button",nil,ItemsList.cnt)
                     frameButton:SetPoint("TOPLEFT", ItemsList.cnt, "TOPLEFT", 5, 32-((32*index-1)+2))
                     frameButton:SetPoint("RIGHT", ItemsList.cnt, "RIGHT", -5, 0)
-                    --frameButton:SetWidth(30)
                     frameButton:SetHeight(30)
                     frameButton:EnableMouse(false)
                     frameButton:SetScript("OnEnter", function(self)
@@ -536,23 +888,18 @@ function NS_MyWishList:fillMyWishList(instance_id)
                             ButtonAdd.icon:SetTexture("Interface\\AddOns\\"..addonname.."\\Images\\remove_red.blp");
                         ButtonAdd:SetPoint("TOPLEFT", labelItemName,"TOPRIGHT",5, 5)
                         ButtonAdd:SetScript("OnClick", function(self)
-                           -- print("click")
                             local cpt_r = 0
                             local found = false
                             local index_ = 0
                             for k, v in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]) do
                                 cpt_r = cpt_r + 1
-                                --print("click k:"..k)
-                                --print("click v:"..v)
                                 if v then
                                     if tonumber(v) == tonumber(itemid) then
                                         found = true
                                         index_ = k
                                     end
                                 end
-                                
                             end
-                            --print(cpt_r)
                             if found then
                                 NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id][index_] = nil
                             end
@@ -605,11 +952,8 @@ function NS_MyWishList:fillMyWishList(instance_id)
                         ButtonUp:SetPoint("TOPLEFT",0,0)
                         ButtonUp:SetScript("OnClick", function(self)
                             local toDwn =  NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(index-1)]
-                            --print("toDwn: "..toDwn)
                             NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(index-1)] = itemid
-                            --print("toDwn: "..toDwn)
                             NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(index)] = toDwn
-                            --print("toDwn: "..toDwn)
                             NS_MyWishList:fillMyWishList(instance_id)
                         end)
                         local highlight = ButtonUp:CreateTexture(nil, "HIGHLIGHT")
@@ -631,11 +975,8 @@ function NS_MyWishList:fillMyWishList(instance_id)
                         ButtonDwn:SetPoint("TOPLEFT",0,-15)
                         ButtonDwn:SetScript("OnClick", function(self)
                             local toUp =  NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(index+1)]
-                            --print("toUp: "..toUp)
                             NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(index+1)] = itemid
-                           -- print("toUp: "..toUp)
                             NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"][instance_id]["prio_"..tostring(index)] = toUp
-                            --print("toUp: "..toUp)
                             NS_MyWishList:fillMyWishList(instance_id)
                         end)
                         local highlight = ButtonDwn:CreateTexture(nil, "HIGHLIGHT")
@@ -644,8 +985,6 @@ function NS_MyWishList:fillMyWishList(instance_id)
                             highlight:SetTexCoord(0, 1, 0.23, 0.77)
                             highlight:SetBlendMode("ADD")
                 frameButton.ButtonAdd = ButtonAdd
-                --ItemsButtonds["ItemButton_"..instance_id.."_"..cpt_idx] = frameButton
-
             end
         end
     end

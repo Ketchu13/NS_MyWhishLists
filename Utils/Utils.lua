@@ -13,7 +13,6 @@ local _
 local UIParent, MailFrame = UIParent, MailFrame
 
 function NS_MyWishList:getItemId(itemlink)--todo update
-    --print(itemlink)
     if itemlink  then
         local _, _, _, _, Id, _, _, _, _, _, _, _, _, Name = string.find(itemlink,"|?c?f?f?(%x*)|?H?([^:]*):?(%d+):?(%d*):?(%d*):?(%d*):?(%d*):?(%d*):?(%-?%d*):?(%-?%d*):?(%d*):?(%d*):?(%-?%d*)|?h?%[?([^%[%]]*)%]?|?h?|?r?")
         return Id
@@ -46,7 +45,6 @@ function NS_MyWishList.try(f, catch_f)
 end
 ---- Function to remove RealmName
 function NS_MyWishList:RemoveRealmPName(playerName)
-    --print(playerName)
     return string.gsub(playerName, "(.*)%-.*$", "%1", 1)
 end
 

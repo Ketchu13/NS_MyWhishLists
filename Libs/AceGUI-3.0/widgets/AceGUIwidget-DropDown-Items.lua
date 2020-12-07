@@ -102,6 +102,11 @@ function ItemBase.SetText(self, text)
 end
 
 -- exported
+function ItemBase.SetTextColor(self, r,g,b)
+    self.text:SetTextColor(r,g,b)
+end
+
+-- exported
 function ItemBase.GetText(self)
     return self.text:GetText()
 end
@@ -203,6 +208,7 @@ function ItemBase.Create(type)
     self.SetPullout = ItemBase.SetPullout
     self.GetText    = ItemBase.GetText
     self.SetText    = ItemBase.SetText
+    self.SetTextColor    = ItemBase.SetTextColor
     self.SetDisabled = ItemBase.SetDisabled
 
     self.SetPoint   = ItemBase.SetPoint

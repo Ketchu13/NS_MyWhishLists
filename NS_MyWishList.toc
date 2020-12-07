@@ -1,8 +1,8 @@
 ## Interface: 11306
-## Notes: NS_MyWishList..
-## Title: NS_MyWishList |cFF00FF000.1.30|r
-## Version: 0.1.30
-## Author: ketch aka Søuris
+## Notes: NS_MyWishList.. By Ketchu13 Aka |cFFFF00FFSøuris|r - Auberdine EU
+## Title: NS_MyWishList |cFF00FF000.1.31|r
+## Version: 0.1.31
+## Author: ketchu13 aka Søuris
 ## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, lib-st, LibWindow-1.1, LibDialog-1.0
 ## SavedVariables: NS_MyWishList_Data_001
 
@@ -20,8 +20,11 @@ Modules\InstanceItemsListFrame.lua
 Modules\core_ui.lua
 Modules\Version.lua
 Modules\Souris.lua
+Modules\Compress.lua
+Modules\Export.lua
 
 Data\Constants.lua
 Data\Config.lua
 
 Utils\Utils.lua
+

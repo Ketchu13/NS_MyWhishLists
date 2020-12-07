@@ -270,6 +270,9 @@
     <Content Include="Libs\AceGUI-3.0\widgets\AceGUIwidget-Slider.lua">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="Libs\AceGUI-3.0\widgets\BankFrame.xml">
+      <SubType>Frame</SubType>
+    </Content>
     <Content Include="Libs\AceHook-3.0\AceHook-3.0.lua">
       <SubType>Code</SubType>
     </Content>
@@ -455,10 +458,16 @@
     <Content Include="Libs\LibWindow-1.1\LibWindow-1.1.lua">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="Modules\Compress.lua">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="Modules\Com.lua">
       <SubType>Code</SubType>
     </Content>
     <Content Include="Modules\core_ui.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\Export.lua">
       <SubType>Code</SubType>
     </Content>
     <Content Include="Modules\InstanceItemsListFrame.lua">

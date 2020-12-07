@@ -669,6 +669,7 @@ do
         self.SetValue    = SetValue
         self.GetValue    = GetValue
         self.SetList     = SetList
+        self.AddCloseButton     = AddCloseButton
         self.SetLabel    = SetLabel
         self.SetDisabled = SetDisabled
         self.AddItem     = AddItem

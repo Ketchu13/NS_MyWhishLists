@@ -1001,3 +1001,23 @@ NS_MyWishList.ClassWeaponType = {
 	["WARLOCK"] = {7, 10, 14, 15, 19, 20},
 	["DRUID"]   = {4, 5, 6, 10, 11, 12, 13, 14, 15, 20},
 }
+
+-- map of slot ID to display text
+NS_MyWishList.Slots = {
+    [-1] = "Tous..",
+    [1]  = _G["HEADSLOT"],
+    [2]  = _G["NECKSLOT"],
+    [3]  = _G["SHOULDERSLOT"],
+    [5]  = _G["CHESTSLOT"],
+    [6]  = _G["WAISTSLOT"],
+    [7]  = _G["LEGSSLOT"],
+    [8]  = _G["FEETSLOT"],
+    [9]  = _G["WRISTSLOT"],
+    [10] = _G["HANDSSLOT"],
+    [11] = _G["FINGER0SLOT"],
+    [13] = _G["TRINKET0SLOT"],
+    [15] = _G["BACKSLOT"], 
+    [16] = _G["MAINHANDSLOT"], 
+    [17] = _G["SECONDARYHANDSLOT"], 
+    [18] = _G["RANGEDSLOT"],
+}

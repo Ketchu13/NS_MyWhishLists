@@ -13,15 +13,13 @@ local commPrefix = NS_MyWishList.commPrefix
 
 ---=====================================================---
 function NS_MyWishList:OnCommReceive(prefix, data, distribution, sender)
-    --print(prefix)
-    if sender == UnitName("player") then -- skip
-        --return --     skip player
+    if sender == UnitName("player") then
+        return  --     skip player
     end
     local command, target_, value = data:match("^(%S+) (%w+) (.*)$")
     if not target_ then
         command, value = data:match("^(%S+) (.*)$")
     end
-    --print(command)
 --    if command == "MYWL"  then
 
 --        if target_ == "" or target_ == nil then --or target_ == UnitName("player") then

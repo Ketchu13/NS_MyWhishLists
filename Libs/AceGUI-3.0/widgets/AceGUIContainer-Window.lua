@@ -159,7 +159,7 @@ do
         local self = {}
         self.type = "Window"
         local FrameBackdrop = {
-            bgFile = "Interface\\AddOns\\NS_MyWhishList\\Images\\dsf", -- "Interface\\DialogFrame\\UI-DialogBox-Background",
+            bgFile = "Interface\\AddOns\\NS_MyWishList\\Images\\dsf", -- "Interface\\DialogFrame\\UI-DialogBox-Background",
             edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
             tile = false,
             tileSize = 32,
