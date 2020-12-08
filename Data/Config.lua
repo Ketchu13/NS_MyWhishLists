@@ -118,7 +118,7 @@ NS_MyWishList.options = {
                     desc = "Display error from com data.",
                     width = "full",
                     set = function(info, value)
-                        NS_MyWishList_Data_001.displayError.hide = not NS_MyWishList_Data_001.displayError.hide                                                
+                        NS_MyWishList_Data_001.displayError.hide = not NS_MyWishList_Data_001.displayError.hide
                     end,
                     get = function(info)
                         return NS_MyWishList_Data_001.displayError.hide
