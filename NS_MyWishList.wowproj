@@ -458,6 +458,42 @@
     <Content Include="Libs\LibWindow-1.1\LibWindow-1.1.lua">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="Modules\Code1.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\Com.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\Compress.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\core_ui.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\Export.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\InstanceItemsListFrame.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\Location.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\MainInfos.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\Souris.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\Stuff.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\Talents.lua">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Modules\Version.lua">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="NS_MyWishList.toc">
       <SubType>TableOfContents</SubType>
     </Content>
@@ -521,6 +557,7 @@
     <Folder Include="Libs\LibStub\" />
     <Folder Include="Libs\LibWindow-1.1\" />
     <Folder Include="Images" />
+    <Folder Include="Modules\" />
     <Folder Include="Utils\" />
   </ItemGroup>
   <Import Project="$(DevEnvDir)\Extensions\Tools\MSBuild\AddonStudio\Wow\3.0\WowAddonStudio.targets" />
