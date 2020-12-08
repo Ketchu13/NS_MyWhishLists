@@ -180,6 +180,23 @@ function NS_MyWishList:DrawExportMyWLTabs(container, target_id)
     table_str = table_str.."    \"class\": \""..NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name].infos.classe.englishClass.."\",\n"
     table_str = table_str.."    \"race\": \""..NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name].infos.race.."\",\n"
     table_str = table_str.."    \"level\": "..NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name].infos.level..",\n"
+
+    table_str = table_str.."    \"stuff\": [\n"
+    for _,item in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name].stuff) do
+        if not item["Id"] then
+            NS_MyWishList:getUserStuff()
+            NS_MyWishList.SelectGroup(container, nil, "tab8")
+            return
+        end
+        if item["Id"] > 1 and item["slot"] > 0 then
+            table_str = table_str.."        {\n"
+            table_str = table_str.."            \"id\": "..item["Id"]..",\n"
+            table_str = table_str.."            \"slot\": "..item["slot"].."\n"
+            table_str = table_str.."        },\n"
+        end
+    end
+    table_str = table_str.sub(table_str,1, #table_str-2).."\n"
+    table_str = table_str.."    ],\n"
     table_str = table_str.."    \"wls\": [\n"
     for instance_id,v in pairs(NS_MyWishList_Data_001["Toons"][NS_MyWishList.player_name]["MYWLS"]) do
         table_str = table_str.."        {\n"
@@ -199,9 +216,9 @@ function NS_MyWishList:DrawExportMyWLTabs(container, target_id)
     local input_compressed = NS_MyWishList:Compress(table_str)
     local printable_com_input = NS_MyWishList:PrintCompressed(input_compressed)
     TxtBox:SetText(printable_com_input)
-    --local com_input = NS_MyWishList:RecompressPrintable(printable_com_input)
-    --local decom_input = NS_MyWishList:Decompress(com_input)
-    --TxtBox:SetText(TxtBox:GetText().."\n"..decom_input)
+    local com_input = NS_MyWishList:RecompressPrintable(printable_com_input)
+    local decom_input = NS_MyWishList:Decompress(com_input)
+    TxtBox:SetText(TxtBox:GetText().."\n"..decom_input)
     scrollFrame:SetScrollChild(exportFrame.cnt)
 
     return exportFrame

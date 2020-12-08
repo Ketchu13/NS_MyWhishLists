@@ -96,7 +96,14 @@ function NS_MyWishList:DrawItemsList(container, instance_id)
     ItemsList.lootQualityDropmenu_str = lootQualityDropmenu_str
 
     ItemsList.menuLootQuality.text = (function (self, value) ItemsList.lootQualityDropmenu_str:SetText(value) end)
+    if not NS_MyWishList_Data_001["config"][instance_id] then
+        NS_MyWishList_Data_001["config"][instance_id] = {}
+    end
+    if not NS_MyWishList_Data_001["config"][instance_id]["itemQuality"] then
+        NS_MyWishList_Data_001["config"][instance_id]["itemQuality"] = 0
+    end
     local iv = NS_MyWishList_Data_001["config"][instance_id]["itemQuality"]
+    if not iv then error("Something is going bad..") end
     local r, g, b, hex = GetItemQualityColor(iv)
     local color = "|c"..hex
     local colorend = "|r"
@@ -126,7 +133,7 @@ function NS_MyWishList:DrawItemsList(container, instance_id)
             local color = "|c"..hex
             local btn1 = NS_MyWishList.AceGUI:Create("Dropdown-Item-Execute")
             btn1:SetText((color.._G["ITEM_QUALITY"..i.. "_DESC"]..colorend))
-            btn1:SetTextColor(r,g,b)
+
             btn1:SetCallback("OnClick", function(self)
                 container:ReleaseChildren()
                 --self:SetText(color..qualityName..colorend)
